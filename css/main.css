@@ -45,21 +45,96 @@ img {
     border: 1px solid #d8d8d8;
     padding: 5px 20px;
 }
-
+/* Кнопки начало*/
 button {
-    margin-top: 30px;
-    border: none;
-    background-color: #1E95EA;
-    color: white;
-    height: 40px;
-    width: 100px;
-    font-size: 14px;
+    border: 1px solid black;
+    padding: 12px 30px 12px 30px;
+    border-radius: 30px;
+    background-color: limegreen;
+    font-weight: bolder;
+    font-size: 15px;
+    -webkit-box-shadow: 0px 0px 1px;
+    box-shadow: 0px 0px 1px;
+    -webkit-transform: all 2s esase;
+    -ms-transform: all 2s esase;
+    transform: all 2s esase;
+    -webkit-transition-duration: .3s;
+    transition-duration: .3s;
 }
 
+button:hover {
+    -webkit-transform: translateY(-10px);
+    -ms-transform: translateY(-10px);
+    transform: translateY(-10px);
+    -webkit-box-shadow: 0px 7px 1px rgb(0, 0, 0);
+    box-shadow: 0px 7px 1px rgb(0, 0, 0);
+    border: 1px solid black;
+}
+
+button:active {
+    -webkit-transform: translateY(10px);
+    -ms-transform: translateY(10px);
+    transform: translateY(10px);
+    -webkit-box-shadow: 0px 0px 1px;
+    box-shadow: 0px 0px 1px;
+}
 .disabledButton {
     background-color: #d8d8d8;
 }
+.deleteFromCart{
+    width: 140px;
+    height: 50px;
+    background-color: rgb(20, 20, 20);
+    border: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.164);
+    cursor: pointer;
+    transition-duration: .3s;
+    overflow: hidden;
+    position: relative;
+}
+.svgIcon {
+    width: 12px;
+    transition-duration: .3s;
+}
 
+.svgIcon path {
+    fill: white;
+}
+
+.deleteFromCart:hover {
+    width: 150px;
+    border-radius: 50px;
+    transition-duration: .3s;
+    background-color: rgb(255, 69, 69);
+    align-items: center;
+}
+
+.deleteFromCart:hover .svgIcon {
+    width: 50px;
+    transition-duration: .3s;
+    transform: translateY(60%);
+}
+
+.deleteFromCart::before {
+    position: absolute;
+    top: -20px;
+    content: "Delete";
+    color: white;
+    transition-duration: .3s;
+    font-size: 2px;
+}
+
+.deleteFromCart:hover::before {
+    font-size: 13px;
+    opacity: 1;
+    transform: translateY(30px);
+    transition-duration: .3s;
+}
+/* Кнопки конец*/
 .review-form {
     width: 400px;
     padding: 20px;
