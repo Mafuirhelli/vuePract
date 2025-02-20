@@ -17,9 +17,7 @@ Vue.component('product', {
                         <p v-if="inventory > 10">In Stock</p>
                         <p v-else-if="inventory <= 10 && inventory > 0">Almost sold out!</p>
                         <p v-else :class="{outOfStock: !inventory}">Out of Stock</p>
-                        <ul>
-                            <li v-for="detail in details">{{ detail }}</li>
-                        </ul>
+                           <product-details></product-details>
                         <b>Sizes</b>
                         <ul>
                             <li v-for="size in sizes">{{ size }}</li>
@@ -119,7 +117,18 @@ Vue.component('product', {
     }
 
 })
-
+Vue.component('product-details', {
+    template: `
+        <ul>
+            <li v-for="detail in details" >{{ detail }}</li>
+        </ul>
+   `,
+    data() {
+        return {
+            details: ['80% cotton', '20% polyester', 'Gender-neutral']
+        }
+    }
+})
 let app = new Vue({
     el: '#app',
     data: {
