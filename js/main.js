@@ -78,7 +78,7 @@ Vue.component('product', {
                     variantId: 2235,
                     variantColor: 'blue',
                     variantImage: "./assets/vmSocks-blue-onWhite.jpg",
-                    variantQuantity: 0
+                    variantQuantity: 20
                 }
             ],
             sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
