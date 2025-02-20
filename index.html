@@ -41,8 +41,8 @@ initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
             </div>
 
             <button @click="addToCart"
-                    :disabled="!inStock"
-                    :class="{ disabledButton: !inStock }"
+                    :disabled="!onStock"
+                    :class="{ disabledButton: !onStock }"
             >
                 Add to cart
             </button>
