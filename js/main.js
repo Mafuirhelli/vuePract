@@ -1,14 +1,3 @@
-Vue.component('product-review', {
-    template: `
-<input>
-`,
-    data() {
-        return {
-            name: null
-        }
-    }
-})
-
 Vue.component('product', {
     props: {
         premium: {
@@ -16,74 +5,47 @@ Vue.component('product', {
             required: true
         }
     },
-    template: `<div class="product">
-                    <div class="product-image">
-                        <img :src="image" :alt="altText"/>
-                    </div>
-                    <div class="product-info" >
-                        <h1>{{ title }}</h1>
-                        <p>{{ description }}</p>
-                        <span v-show="onSale">{{ sale }}</span>
-                        <p v-if="inventory > 10">In Stock</p>
-                        <p v-else-if="inventory <= 10 && inventory > 0">Almost sold out!</p>
-                        <p v-else :class="{outOfStock: !inventory}">Out of Stock</p>
-                           <product-details></product-details>
-                        <b>Sizes</b>
-                        <ul>
-                            <li v-for="size in sizes">{{ size }}</li>
-                        </ul>
-                        <p>Shipping: {{ shipping }}</p>
-                        <b>Variants</b>
-                        <div class="color-box"
-                             v-for="(variant, index) in variants"
-                             :key="variant.variantId"
-                             :style="{ backgroundColor:variant.variantColor }"
-                             @mouseover="updateProduct(index)"
-                        >
-                        </div>
-                        <button @click="addToCart"
-                                :disabled="!inStock"
-                                :class="{ disabledButton: !inStock }"
-                        >
-                            Add to cart
-                        </button>
-                        <button
-                                @click="deleteFromCart" class="deleteFromCart"
+    template: `
+<div class="product">
+        <div class="product-image">
+            <img :src="image" :alt="altText"/>
+        </div>
+        <div class="product-info">
+            <h1>{{ title }}</h1>
+            <p v-if="inStock">In stock</p>
+            <p v-else :class="{ 'line-through': !inStock }">Out of Stock</p>
+            <div v-for="(variant, index) in variants" :key="variant.variantId"
+                 class="variant" :style="{ backgroundColor: variant.variantColor }" @mouseover="updateProduct(index)">
+            </div>
+            <ul>
+                <li v-for="size in sizes" >{{ size }}</li>
+            </ul>
+            <button v-on:click="addToCart" :disabled="!inStock"
+                    :class="{ disabledButton: !inStock }">Add to cart</button>
+            <button
+                                @click="decreaseCart" class="deleteFromCart"
                         >
                             <svg viewBox="0 0 448 512" class="svgIcon"><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"></path></svg></button>
                         <br>
                         <a :href="link">More products like this</a>
                     </div>
-                    <div>
-                    <h2>Reviews</h2>
-                        <p v-if="!reviews.length">There are no reviews yet.</p>
-                      <ul>
-                        <li v-for="review in reviews">
-                          <p>{{ review.name }}</p>
-                          <p>Rating: {{ review.rating }}</p>
-                          <p>{{ review.review }}</p>
-                        </li>
-                      </ul>
-        </div>
-        <product-review @review-submitted="addReview"></product-review>
+        <product-tabs :reviews="reviews"></product-tabs>
     </div>
-                </div>
-        </div>`,
+`,
     data() {
         return {
             product: "Socks",
-            brand: "Nosocks",
-            description: "A pair warm, fuzzy socks",
+            brand: 'Vue Mastery',
+            onSale: 'sale',
             selectedVariant: 0,
             altText: "A pair of socks",
             link: "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=socks",
-            inventory: 100,
-            onSale: true,
-            details: ['80% cotton', '20% polyester', 'Gender-neutral',],
+            inStock: true,
+            details: ['80% cotton', '20% polyester', 'Gender-neutral'],
             variants: [
                 {
                     variantId: 2234,
-                    variantColor: 'green',
+                    variantColor: 'lime',
                     variantImage: "./assets/vmSocks-green-onWhite.jpg",
                     variantQuantity: 10
                 },
@@ -91,7 +53,8 @@ Vue.component('product', {
                     variantId: 2235,
                     variantColor: 'blue',
                     variantImage: "./assets/vmSocks-blue-onWhite.jpg",
-                    variantQuantity: 20
+                    variantQuantity: 0
+
                 }
             ],
             sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
@@ -108,7 +71,7 @@ Vue.component('product', {
             this.$emit('add-to-cart',
                 this.variants[this.selectedVariant].variantId);
         },
-        deleteFromCart() {
+        decreaseCart() {
             this.$emit('delete-to-cart',
                 this.variants[this.selectedVariant].variantId);
         },
@@ -118,14 +81,10 @@ Vue.component('product', {
     },
     computed: {
         title() {
-            return this.brand + ' ' + this.product;
-
+            return this.brand + ' ' + this.product + ' ' + this.onSale;
         },
         image() {
             return this.variants[this.selectedVariant].variantImage;
-        },
-        inStock(){
-            return this.variants[this.selectedVariant].variantQuantity;
         },
         sale(){
             return  'This ' + this.product + ' from ' + this.brand + ' is discounted';
@@ -138,8 +97,9 @@ Vue.component('product', {
             }
         }
     }
-
 })
+
+
 Vue.component('product-details', {
     template: `
         <ul>
@@ -222,12 +182,75 @@ Vue.component('product-review', {
         }
     }
 })
+
+Vue.component('product-tabs', {
+    template: `
+    <div>
+      <ul>
+        <span class="tab" 
+              :class="{ activeTab: selectedTab === tab }"
+              v-for="(tab, index) in tabs"
+              @click="selectedTab = tab">{{ tab }}</span>
+      </ul>
+      <div v-show="selectedTab === 'Отзывы'">
+        <p v-if="!reviews.length">Отзывов пока нет.</p>
+        <ul>
+          <li v-for="review in reviews">
+            <p>{{ review.name }}</p>
+            <p>Оценка: {{ review.rating }}</p>
+            <p>{{ review.review }}</p>
+          </li>
+        </ul>
+      </div>
+      <div v-show="selectedTab === 'Оставить отзыв'">
+        <product-review @review-submitted="addReview"></product-review>
+      </div>
+      <div v-show="selectedTab === 'Shipping'">
+            <p>Shipping: {{ shipping }} Free</p>
+      </div>
+      <div v-show="selectedTab === 'Details'">
+                    <ul>
+                <product-details></product-details>
+            </ul>
+      </div>
+    </div>
+  `,
+    props: {
+        reviews: {
+            type: Array,
+            required: false
+        },
+        shipping: {
+            type: String,
+            required: true
+        },
+        details: {
+            type: Array,
+            required: true
+        }
+    },
+    data() {
+        return {
+            tabs: ['Отзывы', 'Оставить отзыв', 'Shipping', 'Details'],
+            selectedTab: 'Отзывы'
+        };
+    },
+    methods: {
+        addReview(productReview) {
+            this.reviews.push(productReview);
+        }
+    }
+});
+
+
+
 let app = new Vue({
     el: '#app',
     data: {
         premium: true,
-        cart: [],
+        cart: []
     },
+
     methods: {
         updateCart(id) {
             this.cart.push(id);
