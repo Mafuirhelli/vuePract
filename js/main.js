@@ -1,5 +1,11 @@
 
 Vue.component('product', {
+    props: {
+        premium: {
+            type: Boolean,
+            required: true
+        }
+    },
     template: `<div class="product">
                     <div class="product-image">
                         <img :src="image" :alt="altText"/>
@@ -18,9 +24,9 @@ Vue.component('product', {
                         <ul>
                             <li v-for="size in sizes">{{ size }}</li>
                         </ul>
+                        <p>Shipping: {{ shipping }}</p>
                         <b>Variants</b>
                         <div class="color-box"
-                             class="color-box"
                              v-for="(variant, index) in variants"
                              :key="variant.variantId"
                              :style="{ backgroundColor:variant.variantColor }"
@@ -102,6 +108,13 @@ Vue.component('product', {
         },
         sale(){
             return  'This ' + this.product + ' from ' + this.brand + ' is discounted';
+        },
+        shipping() {
+            if (this.premium) {
+                return "Free";
+            } else {
+                return 2.99
+            }
         }
     }
 
@@ -109,4 +122,7 @@ Vue.component('product', {
 
 let app = new Vue({
     el: '#app',
+    data: {
+        premium: true
+    }
 })
