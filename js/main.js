@@ -1,5 +1,3 @@
-
-
 Vue.component('product', {
     props: {
         premium: {
@@ -32,9 +30,8 @@ Vue.component('product', {
                         >
                         </div>
                         <button @click="addToCart"
-                                :disabled="!inStock"
-                                :class="{ disabledButton: !inStock }"
-                        >
+                               :disabled="!inStock"
+                                :class="{ disabledButton: !inStock }">
                             Add to cart
                         </button>
                         <button
@@ -44,7 +41,15 @@ Vue.component('product', {
                         <br>
                         <a :href="link">More products like this</a>
                     </div>
-                            <product-tabs :reviews="reviews"></product-tabs>
+                    <div v-if="showModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" @click="closeModal">&times;</span>
+                    <h2>Product Added to Cart</h2>
+                    <p>{{ product }} {{ brand }} - {{ variants[selectedVariant].variantColor }}</p>
+                </div>
+                </div>
+                
+                   <product-tabs :reviews="reviews" :shipping="shipping" :details="details" :variant-color="variants[selectedVariant].variantColor"></product-tabs>
                 </div>
 
 `,
@@ -62,7 +67,7 @@ Vue.component('product', {
                     variantId: 2234,
                     variantColor: 'lime',
                     variantImage: "./assets/vmSocks-green-onWhite.jpg",
-                    variantQuantity: 10
+                    variantQuantity: 11
                 },
                 {
                     variantId: 2235,
@@ -78,6 +83,7 @@ Vue.component('product', {
                 this.selectedVariant = index;
                 console.log(index);
             },
+            showModal: false,
             reviews: [],
         }
     },
@@ -85,6 +91,10 @@ Vue.component('product', {
         addToCart() {
             this.$emit('add-to-cart',
                 this.variants[this.selectedVariant].variantId);
+            this.showModal = true;
+        },
+        closeModal() {
+            this.showModal = false;
         },
         decreaseCart() {
             this.$emit('delete-to-cart',
@@ -101,8 +111,8 @@ Vue.component('product', {
         image() {
             return this.variants[this.selectedVariant].variantImage;
         },
-        sale(){
-            return  'This ' + this.product + ' from ' + this.brand + ' is discounted';
+        sale() {
+            return 'This ' + this.product + ' from ' + this.brand + ' is discounted';
         },
         shipping() {
             if (this.premium) {
@@ -111,7 +121,7 @@ Vue.component('product', {
                 return 2.99
             }
         },
-        inStock(){
+        inStock() {
             return this.variants[this.selectedVariant].variantQuantity
         }
     }
@@ -134,10 +144,16 @@ Vue.component('product-details', {
 Vue.component('product-review', {
     template: `
     <form class="review-form" @submit.prevent="onSubmit">
-    <p v-if="errors.length">
-      <b>Please correct the following error(s):</b>
-      <ul><li v-for="error in errors">{{ error }}</li></ul>
-    <p>
+      <div v-if="errors.length" class="toast">
+        <font-awesome-icon :icon="['fas', 'circle-exclamation']" />
+        <div class="content">
+          <div class="title">Error!</div>
+          <ul>
+            <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
+          </ul>
+        </div>
+        <i class="fa-solid fa-xmark" @click="clearErrors"></i>
+      </div>
       <p>
         <label for="name">Name:</label>
         <input id="name" v-model="name" placeholder="name">
@@ -156,48 +172,52 @@ Vue.component('product-review', {
             <option>1</option>
          </select>
       </p>
-             <label for="recommend" >Would you recommend this product?</label><br>
-             <input type="radio" id="yes" name="recommend" value="yes">
-             <label for="yes" >Yes</label><br>
-             <input type="radio" id="no" name="recommend" value="no">
-             <label for="no" >No</label><br>
+      <label for="recommend">Would you recommend this product?</label><br>
+      <input type="radio" id="yes" name="recommend" value="yes" v-model="recommend">
+      <label for="yes">Yes</label><br>
+      <input type="radio" id="no" name="recommend" value="no" v-model="recommend">
+      <label for="no">No</label><br>
       <p>
         <input type="submit" value="Submit">
       </p>
-</form>
-`,
+    </form>
+    `,
     data() {
         return {
             name: null,
             review: null,
             rating: null,
-            recommended: null,
+            recommend: null,
             errors: []
         }
     },
-    methods:{
+    methods: {
         onSubmit() {
-            if(this.name && this.review && this.rating && this.recommend !== null) {
+            this.errors = []; // Сброс ошибок перед валидацией
+            if (this.name && this.review && this.rating && this.recommend !== null) {
                 let productReview = {
                     name: this.name,
                     review: this.review,
                     rating: this.rating,
                     recommend: this.recommend
                 }
-                this.$emit('review-submitted', productReview)
-                this.name = null
-                this.review = null
-                this.rating = null
-                this.recommend = null
+                this.$emit('review-submitted', productReview);
+                this.name = null;
+                this.review = null;
+                this.rating = null;
+                this.recommend = null;
             } else {
-                if(!this.name) this.errors.push("Name required.")
-                if(!this.review) this.errors.push("Review required.")
-                if(!this.rating) this.errors.push("Rating required.")
-                if (this.recommend === null) this.errors.push("Recommendation required.")
+                if (!this.name) this.errors.push("Name required.");
+                if (!this.review) this.errors.push("Review required.");
+                if (!this.rating) this.errors.push("Rating required.");
+                if (this.recommend === null) this.errors.push("Recommendation required.");
             }
+        },
+        clearErrors() {
+            this.errors = []; // Метод для очистки ошибок
         }
     }
-})
+});
 
 Vue.component('product-tabs', {
     template: `
@@ -211,8 +231,9 @@ Vue.component('product-tabs', {
       <div v-show="selectedTab === 'Отзывы'">
         <p v-if="!reviews.length">Отзывов пока нет.</p>
         <ul>
-          <li v-for="review in reviews">
-            <p>{{ review.name }}</p>
+          <li v-for="review in reviews" :key="review.name">
+            <p>цвет товара: {{ variantColor }}</p> <!-- Отображение цвета -->
+            <b>{{ review.name }}</b>
             <p>Оценка: {{ review.rating }}</p>
             <p>{{ review.review }}</p>
           </li>
@@ -222,11 +243,11 @@ Vue.component('product-tabs', {
         <product-review @review-submitted="addReview"></product-review>
       </div>
       <div v-show="selectedTab === 'Shipping'">
-            <p>Shipping: {{ shipping }} Free</p>
+            <p>Shipping: {{ shipping }} </p>
       </div>
       <div v-show="selectedTab === 'Details'">
              <ul>
-                <product-details></product-details>
+                <product-details :details="details"></product-details>
             </ul>
       </div>
     </div>
@@ -243,6 +264,10 @@ Vue.component('product-tabs', {
         details: {
             type: Array,
             required: true
+        },
+        variantColor: {  // Добавлен новый пропс для цвета варианта
+            type: String,
+            required: true
         }
     },
     data() {
@@ -257,7 +282,6 @@ Vue.component('product-tabs', {
         }
     }
 });
-
 
 
 let app = new Vue({
@@ -278,7 +302,7 @@ let app = new Vue({
             if (this.cart.length <= 0) {
                 return this.cart.length;
             } else
-                this.cart.splice(this.cart.length -1,1);
+                this.cart.splice(this.cart.length - 1, 1);
         }
     }
 })
